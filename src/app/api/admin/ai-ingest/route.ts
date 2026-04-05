@@ -55,11 +55,17 @@ export async function POST(req: Request) {
         const { data: newCitizen, error: nError } = await supabase
           .from("citizens")
           .insert({ name: c.name, aadhaar: c.aadhaar, phone: c.phone })
-          .select()
+          .select("id")
           .single();
         if (nError) throw nError;
         citizen = newCitizen;
       }
+
+      if (!citizen) {
+        console.error(`Failed to resolve citizen: ${c.name}`);
+        continue;
+      }
+
       results.citizens++;
 
       // Map Records to this Citizen ID
