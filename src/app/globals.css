@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2) format('woff2');
+}
+
+:root {
+  --background: #000000;
+  --foreground: #fef3c7; /* Pale Gold / Champagne */
+  --gold-primary: #d4af37;
+  --gold-glow: 0 0 30px rgba(212, 175, 55, 0.25);
+  --glass-bg: rgba(10, 10, 10, 0.6);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+@layer components {
+  /* Elite Glassmorphism (Advanced Alpha & Blur) */
+  .glass-card-elite {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    will-change: transform, opacity;
+  }
+
+  .gold-glow-border {
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    box-shadow: var(--gold-glow), inset 0 0 20px rgba(212, 175, 55, 0.1);
+  }
+
+  .gold-text-gradient {
+    background: linear-gradient(135deg, #fef3c7 0%, #d4af37 50%, #92400e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Scroll Reveal Helper Classes */
+  .reveal-base {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom elite gold scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b8860b;
+  border-radius: 10px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
+  box-shadow: 0 0 10px #d4af37;
+}
+
+/* Neural Particles Background Simulation */
+@keyframes float {
+  0% { transform: translateY(0) scale(1); opacity: 0.1; }
+  50% { transform: translateY(-20px) scale(1.1); opacity: 0.3; }
+  100% { transform: translateY(0) scale(1); opacity: 0.1; }
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #d4af37;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #d4af37;
+  animation: float 6s infinite ease-in-out;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
