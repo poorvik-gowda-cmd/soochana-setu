@@ -66,6 +66,9 @@ export async function POST(req: Request) {
         continue;
       }
 
+      // ✅ Absolute Type Safety for Vercel Build
+      const resolvedCitizen = citizen as { id: string };
+
       // Update citizen count for sync telemetry
       results.citizens++;
 
@@ -73,7 +76,7 @@ export async function POST(req: Request) {
       const citizenRecords = entities.department_records.filter((r: any) => r.citizen_name === c.name);
       for (const r of citizenRecords) {
         const { error: rError } = await supabase.from("department_records").insert({
-          citizen_id: citizen.id,
+          citizen_id: resolvedCitizen.id,
           department: r.department,
           income: r.income,
           category: r.category,
