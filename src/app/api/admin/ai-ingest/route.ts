@@ -66,6 +66,7 @@ export async function POST(req: Request) {
         continue;
       }
 
+      // Update citizen count for sync telemetry
       results.citizens++;
 
       // Map Records to this Citizen ID
