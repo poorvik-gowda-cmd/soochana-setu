@@ -29,17 +29,17 @@ export function ConflictDetection({ records }: { records: DepartmentRecord[] }) 
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+    <div className="bg-[rgba(15,15,25,0.65)] backdrop-blur-[14px] rounded-2xl border border-[rgba(198,160,82,0.15)] shadow-[0_0_40px_rgba(198,160,82,0.08)] p-8">
       <div className="flex items-center gap-3 mb-8">
-        <AlertTriangle className="h-5 w-5 text-rose-500" />
-        <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Conflict Telemetry</h3>
+        <AlertTriangle className="h-5 w-5 text-[#C6A052]" />
+        <h3 className="text-sm font-black uppercase tracking-widest text-white italic">Conflict Telemetry</h3>
       </div>
 
       <div className="space-y-4">
         {conflicts.length === 0 ? (
-          <div className="p-6 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-4">
-            <div className="bg-emerald-100 p-2 rounded-full"><AlertCircle className="h-4 w-4 text-emerald-600" /></div>
-            <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">No structural conflicts detected.</p>
+          <div className="p-6 bg-[rgba(16,185,129,0.08)] border border-[rgba(16,185,129,0.3)] rounded-xl flex items-center gap-4">
+            <div className="bg-[rgba(16,185,129,0.1)] p-2 rounded-full"><AlertCircle className="h-4 w-4 text-emerald-500" /></div>
+            <p className="text-xs font-black text-emerald-500 uppercase tracking-widest">No structural conflicts detected.</p>
           </div>
         ) : (
           conflicts.map((c, i) => (
@@ -49,20 +49,22 @@ export function ConflictDetection({ records }: { records: DepartmentRecord[] }) 
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: i * 0.1 }}
               className={`p-6 rounded-xl border flex gap-6 ${
-                c.severity === 'High' ? 'bg-rose-50 border-rose-100' : 'bg-amber-50 border-amber-100'
+                c.severity === 'High' 
+                ? 'bg-[rgba(239,68,68,0.08)] border-[rgba(239,68,68,0.3)]' 
+                : 'bg-[rgba(245,158,11,0.08)] border-[rgba(245,158,11,0.3)]'
               }`}
             >
               <div className={`p-3 h-fit rounded-full ${
-                c.severity === 'High' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+                c.severity === 'High' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'
               }`}>
                 {c.severity === 'High' ? <AlertTriangle className="h-5 w-5" /> : <Info className="h-5 w-5" />}
               </div>
               <div>
                 <h4 className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
-                  c.severity === 'High' ? 'text-rose-900' : 'text-amber-900'
+                  c.severity === 'High' ? 'text-rose-500' : 'text-amber-500'
                 }`}>{c.type}</h4>
                 <p className={`text-sm font-medium ${
-                  c.severity === 'High' ? 'text-rose-700' : 'text-amber-700'
+                  c.severity === 'High' ? 'text-rose-200/70' : 'text-amber-200/70'
                 }`}>{c.description}</p>
               </div>
             </motion.div>

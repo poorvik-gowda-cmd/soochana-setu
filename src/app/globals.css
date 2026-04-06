@@ -13,7 +13,16 @@
   --foreground: #fef3c7; /* Pale Gold / Champagne */
   --gold-primary: #d4af37;
   --gold-glow: 0 0 30px rgba(212, 175, 55, 0.25);
-  --glass-bg: rgba(10, 10, 10, 0.6);
+  --glass-bg: rgba(20, 20, 30, 0.65);
+  --text-primary: #FFFFFF;
+  --text-secondary: #A1A1AA;
+  --gold-accent: rgba(198, 160, 82, 0.15);
+  --gold-glow-soft: 0 0 40px rgba(198, 160, 82, 0.08);
+  --glass-dark: rgba(15, 15, 25, 0.6);
+  --glass-blue-dark: rgba(10, 20, 40, 0.6);
+  --gold-badge-bg: rgba(198, 160, 82, 0.1);
+  --inner-card-bg: rgba(255, 255, 255, 0.03);
+  --inner-card-border: rgba(255, 255, 255, 0.05);
 }
 
 body {
@@ -30,9 +39,45 @@ body {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(212, 175, 55, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--gold-accent);
+    box-shadow: var(--gold-glow-soft), 0 25px 50px -12px rgba(0, 0, 0, 0.8);
     will-change: transform, opacity;
+  }
+
+  .glass-dark-card {
+    background: var(--glass-dark);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--gold-accent);
+    box-shadow: var(--gold-glow-soft);
+    border-radius: 1.25rem; /* 20px */
+    transition: all 0.3s ease;
+  }
+
+  .glass-blue-panel {
+    background: var(--glass-blue-dark);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 60px rgba(59, 130, 246, 0.15);
+  }
+
+  .inner-dark-card {
+    background: var(--inner-card-bg);
+    border: 1px solid var(--inner-card-border);
+    border-radius: 0.75rem; /* 12px */
+    padding: 1rem;
+  }
+
+  .gold-badge {
+    background: var(--gold-badge-bg);
+    color: #C6A052;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 
   .grain-overlay {
@@ -88,6 +133,7 @@ body {
 
   .gold-text-gradient {
     background: linear-gradient(135deg, #fef3c7 0%, #d4af37 50%, #92400e 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }

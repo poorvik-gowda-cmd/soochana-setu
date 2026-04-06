@@ -110,11 +110,11 @@ export default function CitizenDashboard() {
                     animate={{ y: [0, -4, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 >
-                   <h1 className="text-xl font-black italic gold-text-gradient uppercase leading-none tracking-tighter">Citizen Reality Dashboard</h1>
+                   <h1 className="text-2xl font-black italic gold-text-gradient uppercase leading-none tracking-tighter mb-1">Citizen Reality Dashboard</h1>
                    <div className="flex items-center gap-4 mt-2">
-                       <span className="text-[10px] font-black text-amber-100/40 uppercase tracking-[0.2em]">{citizen.name}</span>
+                       <span className="text-[10px] font-black text-white/90 uppercase tracking-[0.2em]">{citizen.name}</span>
                        <div className="h-1.5 w-1.5 bg-amber-500/20 rounded-full" />
-                       <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] leading-none italic opacity-80">
+                       <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] leading-none italic opacity-80">
                          Node: {citizen.aadhaar.substring(0, 4) + "****" + citizen.aadhaar.substring(citizen.aadhaar.length - 4)}
                        </span>
                    </div>
@@ -149,41 +149,41 @@ export default function CitizenDashboard() {
                     </div>
 
                     <div className="glass-card-elite rounded-[4rem] border-amber-500/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] overflow-hidden group">
-                        <div className="p-10 border-b border-amber-500/5 bg-slate-900/40 flex items-center justify-between">
-                            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 italic">Reality Sequence Matrix</p>
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-100 bg-amber-500/10 px-5 py-2 rounded-full border border-amber-500/20 shadow-inner">
+                        <div className="p-12 border-b border-white/5 bg-black/60 flex items-center justify-between">
+                            <p className="text-[11px] font-black uppercase tracking-[0.5em] text-amber-500 italic">Reality Sequence Matrix</p>
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white bg-amber-500/10 px-6 py-2.5 rounded-full border border-amber-500/20 shadow-inner">
                                 {records.length} Ministerial Realities detected
                             </span>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-black/40 border-b border-amber-500/10">
-                                        <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.5em] text-amber-500/40 italic">Department Core</th>
-                                        <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.5em] text-amber-500/40 italic">Stored Asset reality</th>
-                                        <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.5em] text-amber-500/40 italic">Identity group</th>
-                                        <th className="px-10 py-8 text-[11px] font-black uppercase tracking-[0.5em] text-amber-500/40 italic">Active Benefit stream</th>
+                                    <tr className="bg-black/60 border-b border-white/5">
+                                        <th className="px-12 py-10 text-[11px] font-black uppercase tracking-[0.5em] text-zinc-500 italic">Department Core</th>
+                                        <th className="px-12 py-10 text-[11px] font-black uppercase tracking-[0.5em] text-zinc-500 italic">Stored Asset reality</th>
+                                        <th className="px-12 py-10 text-[11px] font-black uppercase tracking-[0.5em] text-zinc-500 italic">Identity group</th>
+                                        <th className="px-12 py-10 text-[11px] font-black uppercase tracking-[0.5em] text-zinc-500 italic">Active Benefit stream</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-amber-500/5">
+                                <tbody className="divide-y divide-white/5">
                                     {records.map((r, idx) => (
                                         <motion.tr 
                                           key={r.id} 
                                           initial={{ opacity: 0, x: -20 }} 
                                           whileInView={{ opacity: 1, x: 0 }}
                                           transition={{ delay: idx * 0.1 }}
-                                          className="hover:bg-amber-500/[0.03] transition-all group/row"
+                                          className="hover:bg-amber-500/[0.04] transition-all group/row border-b border-white/5 last:border-0"
                                         >
-                                            <td className="px-10 py-8">
+                                            <td className="px-12 py-12">
                                                 <span className="text-sm font-black text-white uppercase tracking-tighter italic group-hover:text-amber-400 transition-colors">{r.department}</span>
                                             </td>
-                                            <td className="px-10 py-8 text-lg font-black text-amber-100 tracking-tight">₹{r.income.toLocaleString()}</td>
-                                            <td className="px-10 py-8">
-                                                <span className="px-4 py-1.5 bg-slate-900/80 rounded-full text-[10px] font-black uppercase tracking-widest text-amber-500/60 border border-amber-500/10 group-hover:border-amber-500/30 transition-all">
+                                            <td className="px-12 py-12 text-lg font-black text-white tracking-tight">₹{r.income.toLocaleString()}</td>
+                                            <td className="px-12 py-12">
+                                                <span className="px-5 py-2 bg-black/60 rounded-full text-[10px] font-black uppercase tracking-widest text-amber-500/80 border border-amber-500/20 group-hover:border-amber-500/40 transition-all italic">
                                                     {r.category} node
                                                 </span>
                                             </td>
-                                            <td className="px-10 py-8 text-xs font-black text-amber-500/80 italic tracking-tight opacity-70 group-hover:opacity-100">
+                                            <td className="px-12 py-12 text-xs font-black text-zinc-400 italic tracking-tight opacity-70 group-hover:opacity-100 italic">
                                                 "{r.scheme}"
                                             </td>
                                         </motion.tr>
@@ -204,7 +204,7 @@ export default function CitizenDashboard() {
                        <Lock className="h-6 w-6 text-amber-500" />
                        <h2 className="text-[11px] font-black uppercase tracking-[0.5em] text-white italic">Self-Sovereign Identity Audit Cluster</h2>
                     </div>
-                    <div className="glass-card-elite rounded-[4rem] p-4 border-amber-500/5">
+                    <div className="glass-card-elite rounded-[4rem] p-10 border-amber-500/5">
                          <AuditTrailViewer citizenId={citizen.id} />
                     </div>
                 </motion.section>
@@ -231,7 +231,7 @@ export default function CitizenDashboard() {
                             <h3 className="text-3xl font-black tracking-tighter leading-tight mb-8 italic text-white flex items-center justify-between">
                                 National Benefit <span className="gold-text-gradient underline decoration-amber-500/20 underline-offset-8">Synthesis.</span>
                             </h3>
-                            <p className="text-[13px] font-medium text-amber-100/40 leading-relaxed mb-12 italic tracking-tight">
+                            <p className="text-[13px] font-medium text-zinc-400 leading-relaxed mb-12 italic tracking-tight">
                                 "Our AI Synthesizer cross-references your ministerial data nodes to evaluate match percentages against centralized policy mandates."
                             </p>
 
@@ -254,39 +254,43 @@ export default function CitizenDashboard() {
                           exit={{ opacity: 0, scale: 0.95 }}
                           className="space-y-12"
                         >
-                            <div className="p-12 glass-card-elite rounded-[3.5rem] border-amber-500/10 shadow-4xl relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
-                                <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 mb-10 pb-6 border-b border-amber-500/5 italic flex items-center gap-3">
+                            <div className="p-12 glass-blue-panel rounded-[3.5rem] border-amber-500/10 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+                                <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-blue-400 mb-10 pb-6 border-b border-blue-500/10 italic flex items-center gap-3">
                                    <Sparkles className="h-4 w-4" /> Global Alignment Insights
                                 </h4>
-                                <div className="space-y-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {aiResult.eligible_policies.map((p: any, idx: number) => (
                                         <motion.div 
                                             key={idx} 
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: idx * 0.1 }}
-                                            className="group"
+                                            className="glass-dark-card p-6 flex flex-col gap-4 group hover:scale-[1.02] transition-all duration-300"
                                         >
-                                            <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-4">
-                                                    <div className={`p-2.5 rounded-xl border-2 ${p.status === 'Eligible' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : p.status === 'Partial' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                                                    <div className={`p-2.5 rounded-xl border ${p.status === 'Eligible' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : p.status === 'Partial' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
                                                         {p.status === 'Eligible' ? <CheckCircle2 className="h-4 w-4" /> : p.status === 'Partial' ? <Activity className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
                                                     </div>
-                                                    <span className="text-sm font-black text-white uppercase tracking-tight italic group-hover:text-amber-400 transition-colors">{p.policy_name}</span>
+                                                    <span className="text-sm font-black text-white uppercase tracking-tight italic group-hover:text-[#C6A052] transition-colors leading-tight">{p.policy_name}</span>
                                                 </div>
-                                                <span className="text-xs font-black text-amber-500/40 tracking-[0.2em]">{p.eligibility_percentage}%</span>
+                                                <span className="gold-badge">{p.eligibility_percentage}%</span>
                                             </div>
-                                            <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden mb-4 border border-amber-500/5">
+
+                                            <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden border border-white/5">
                                                 <motion.div 
                                                     initial={{ width: 0 }}
                                                     animate={{ width: `${p.eligibility_percentage}%` }}
-                                                    className={`h-full shadow-[0_0_15px_#d4af37] ${p.eligibility_percentage > 70 ? 'bg-amber-500' : p.eligibility_percentage > 40 ? 'bg-yellow-600' : 'bg-rose-500'}`}
+                                                    className={`h-full ${p.eligibility_percentage > 70 ? 'bg-[#C6A052] shadow-[0_0_15px_rgba(198,160,82,0.4)]' : p.eligibility_percentage > 40 ? 'bg-amber-600' : 'bg-rose-600'}`}
                                                 />
                                             </div>
-                                            <p className="text-[12px] text-amber-100/30 font-bold leading-relaxed italic mt-4 px-2 group-hover:text-amber-100/60 transition-colors">
-                                                "{p.reason}"
-                                            </p>
+
+                                            <div className="inner-dark-card mt-auto">
+                                                <p className="text-[12px] text-[#A1A1AA] font-bold leading-relaxed italic group-hover:text-white transition-colors">
+                                                    "{p.reason}"
+                                                </p>
+                                            </div>
                                         </motion.div>
                                     ))}
                                 </div>
@@ -296,13 +300,13 @@ export default function CitizenDashboard() {
                                initial={{ opacity: 0, y: 20 }}
                                animate={{ opacity: 1, y: 0 }}
                                transition={{ delay: 0.5 }}
-                               className="bg-gradient-to-br from-amber-500/10 to-transparent p-12 rounded-[3.5rem] border border-amber-500/20 shadow-4xl relative overflow-hidden group"
+                               className="glass-blue-panel p-12 rounded-[3.5rem] border border-blue-500/10 relative overflow-hidden group"
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-all">
-                                    <Brain className="h-24 w-24 text-amber-500" />
+                                    <Brain className="h-24 w-24 text-blue-500" />
                                 </div>
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-amber-500 mb-8 underline decoration-amber-500/40 underline-offset-8 italic">Neural Reality Conclusion</h4>
-                                <p className="text-xl font-black leading-relaxed tracking-tight italic text-white/90">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-8 underline decoration-blue-500/40 underline-offset-8 italic">Neural Reality Conclusion</h4>
+                                <p className="text-xl font-black leading-relaxed tracking-tight italic text-white">
                                     "{aiResult.summary}"
                                 </p>
                             </motion.div>
