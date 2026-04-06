@@ -25,7 +25,9 @@ import { ConflictDetection } from "@/components/ConflictDetection";
 import { AIEvaluation } from "@/components/AIEvaluation";
 import { UnifiedProfile } from "@/lib/types";
 
-export default function AdminResearch() {
+import { Suspense } from "react";
+
+function ResearchContent() {
   const [identifier, setIdentifier] = useState("");
   const [profile, setProfile] = useState<UnifiedProfile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -264,5 +266,17 @@ export default function AdminResearch() {
         </div>
       </footer>
     </main>
+  );
+}
+
+export default function AdminResearch() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-10 w-10 text-amber-500 animate-spin" />
+      </div>
+    }>
+      <ResearchContent />
+    </Suspense>
   );
 }
