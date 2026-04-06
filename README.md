@@ -18,7 +18,7 @@ Government systems operate in silos:
 
 ## 💡 Solution
 
-*Samanvay AI* is a full-stack, inter-ministry intelligence platform that:
+*Soochana Setu* is a full-stack, inter-ministry intelligence platform that:
 
 * Unifies fragmented data across ministries
 * Detects fraud and duplication
@@ -246,6 +246,6 @@ O --> P[Insights & Reports]
 
 ## 🏁 Conclusion
 
-Samanvay AI transforms fragmented government systems into a unified, intelligent, and transparent ecosystem.
+Soochana Setu transforms fragmented government systems into a unified, intelligent, and transparent ecosystem.
 
 *"Right benefit to the right citizen — exactly once."*
