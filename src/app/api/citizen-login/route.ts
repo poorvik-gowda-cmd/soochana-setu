@@ -3,18 +3,19 @@ import { supabase } from "../../../lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const { username, citizenId, password } = await request.json();
 
-    if (!username || !password) {
-      return NextResponse.json({ error: "Username and password are required" }, { status: 400 });
+    if (!username || !citizenId || !password) {
+      return NextResponse.json({ error: "Username, Citizen ID, and Password are required" }, { status: 400 });
     }
 
-    // Citizen login logic: Match name/phone and ID as password
+    // Elite triple-factor logic: Match name/phone + ID + Password
     const { data: citizen, error } = await supabase
       .from("citizens")
       .select("*")
       .or(`name.ilike.${username},phone.eq.${username}`)
-      .eq("id", password)
+      .eq("id", citizenId)
+      .eq("password", password)
       .maybeSingle();
 
     if (error) throw error;

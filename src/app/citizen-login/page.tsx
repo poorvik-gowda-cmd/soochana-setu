@@ -20,6 +20,7 @@ import Link from "next/link";
 
 export default function CitizenLogin() {
   const [username, setUsername] = useState("");
+  const [citizenId, setCitizenId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +35,7 @@ export default function CitizenLogin() {
       const res = await fetch("/api/citizen-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, citizenId, password }),
       });
 
       const data = await res.json();
@@ -114,7 +115,7 @@ export default function CitizenLogin() {
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500">Access Guidance Protocol</span>
                 </div>
                 <p className="text-xs font-bold leading-relaxed text-amber-100/40 italic tracking-tight">
-                    "Citizens can use their Name or Registered Phone as the username. The password is your unique system UUID found on your digital card or provided via secure ministerial channel."
+                    "Use your Name or Phone as the identifier, your unique system UUID for validation, and your secret cyber-pass for final authentication."
                 </p>
             </motion.div>
         </div>
@@ -130,30 +131,48 @@ export default function CitizenLogin() {
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-10">
+                    {/* Identifier Field */}
                     <div className="space-y-4 group">
-                        <label className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 px-2 italic">Registered Profile Hub</label>
+                        <label className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 px-2 italic">Registered Profile</label>
                         <div className="relative">
                             <User className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-amber-500/20 group-hover:text-amber-500/50 transition-colors" />
                             <input 
                                type="text"
                                value={username}
                                onChange={(e) => setUsername(e.target.value)}
-                               placeholder="Registered Phone or Name..."
+                               placeholder="Phone or Name..."
                                className="w-full bg-slate-900/60 border-2 border-amber-500/10 rounded-[2rem] py-7 pl-16 pr-8 text-sm font-black text-amber-100 focus:outline-none focus:border-amber-500/40 transition-all shadow-inner tracking-wide placeholder:text-amber-500/5"
                                required
                             />
                         </div>
                     </div>
 
+                    {/* Citizen ID (UUID) Field */}
                     <div className="space-y-4 group">
-                        <label className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 px-2 italic">Security Cryptographic UUID</label>
+                        <label className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 px-2 italic">Citizen Identity UUID</label>
+                        <div className="relative">
+                            <Fingerprint className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-amber-500/20 group-hover:text-amber-500/50 transition-colors" />
+                            <input 
+                               type="text"
+                               value={citizenId}
+                               onChange={(e) => setCitizenId(e.target.value)}
+                               placeholder="Enter System UUID..."
+                               className="w-full bg-slate-900/60 border-2 border-amber-500/10 rounded-[2rem] py-7 pl-16 pr-8 text-sm font-black text-amber-100 focus:outline-none focus:border-amber-500/40 transition-all shadow-inner tracking-tight placeholder:text-amber-500/5"
+                               required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Secret Password Field */}
+                    <div className="space-y-4 group">
+                        <label className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500/40 px-2 italic">Secret Cyber-Pass</label>
                         <div className="relative">
                             <Lock className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-amber-500/20 group-hover:text-amber-500/50 transition-colors" />
                             <input 
                                type="password"
                                value={password}
                                onChange={(e) => setPassword(e.target.value)}
-                               placeholder="Enter 32-character ID..."
+                               placeholder="••••••••"
                                className="w-full bg-slate-900/60 border-2 border-amber-500/10 rounded-[2rem] py-7 pl-16 pr-8 text-sm font-black text-amber-100 focus:outline-none focus:border-amber-500/40 transition-all shadow-inner tracking-widest placeholder:text-amber-500/5"
                                required
                             />
@@ -166,7 +185,7 @@ export default function CitizenLogin() {
                             disabled={loading}
                             className="w-full bg-gradient-to-br from-amber-400 to-yellow-600 text-black rounded-[2rem] py-7 font-black uppercase tracking-[0.3em] text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-4 disabled:bg-slate-800 disabled:text-slate-600"
                         >
-                            {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Commence Biometric Sync <ArrowRight className="h-5 w-5 stroke-[3]" /></>}
+                            {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Commence Secure Entry <ArrowRight className="h-5 w-5 stroke-[3]" /></>}
                         </button>
                     </div>
                     
