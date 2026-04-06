@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DepartmentRecord, Policy } from "@/lib/types";
-import { AuditTrailViewer } from "@/components/AuditTrailViewer";
+import AuditTrailViewer from "@/components/AuditTrailViewer";
 
 export default function CitizenDashboard() {
   const [citizen, setCitizen] = useState<any>(null);
