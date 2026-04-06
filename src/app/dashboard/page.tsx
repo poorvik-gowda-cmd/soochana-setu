@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { AdminStats } from "@/components/AdminStats";
 import { RegionalRiskPreview } from "@/components/RegionalRiskPreview";
 import { AuditTrailViewer } from "@/components/AuditTrailViewer";
+import { WalletConnect } from "@/components/WalletConnect";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminIntelligenceHub() {
@@ -145,6 +146,9 @@ export default function AdminIntelligenceHub() {
                 </div>
                 <Activity className="h-4 w-4 text-amber-500 animate-pulse" />
             </div>
+
+            <WalletConnect />
+
             <Link 
                 href="/citizen-login" 
                 className="flex items-center gap-3 text-amber-500 hover:text-amber-300 transition-all font-black text-[10px] uppercase tracking-[0.3em] group relative"
