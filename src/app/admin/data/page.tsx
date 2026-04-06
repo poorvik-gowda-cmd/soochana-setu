@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { AdminPolicyTable } from "@/components/AdminPolicyTable";
+import { CSVUploadModule } from "@/components/CSVUploadModule";
 
 export default function AdminDataHub() {
   const [rawText, setRawText] = useState("");
@@ -103,108 +104,69 @@ Imran Khan, tax income 400000 filed returns`;
              <Crosshair className="h-[500px] w-[500px] text-amber-500 animate-spin-slow" />
         </div>
 
-        {/* Unified AI Ingest Module: Scroll Reveal Elite */}
-        <section className="mb-32">
+        {/* Unified AI Ingest & CSV Power Upload: Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-32">
+            {/* 1. Intelligent AI Ingest Terminal */}
             <motion.div 
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="glass-card-elite rounded-[4rem] p-20 border-amber-500/10 relative overflow-hidden group shadow-[0_50px_100px_-15px_rgba(0,0,0,1)]"
+                className="glass-card-elite rounded-[4rem] p-12 lg:p-16 border-amber-500/10 relative overflow-hidden group shadow-3xl"
             >
-                <div className="absolute top-0 right-0 p-24 opacity-[0.03] group-hover:scale-110 group-hover:rotate-12 transition-all duration-1000 pointer-events-none">
-                     <Sparkles className="h-80 w-80 text-amber-500" />
-                </div>
-                
-                <div className="relative z-10 max-w-4xl">
-                    <div className="flex items-center gap-3 text-amber-500 mb-10 bg-amber-500/10 w-fit px-5 py-2 rounded-full border border-amber-500/20">
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 text-amber-500 mb-8 bg-amber-500/10 w-fit px-5 py-2 rounded-full border border-amber-500/20">
                         <Zap className="h-4 w-4" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.5em] leading-none">Intelligent Reality Sync active</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.5em] leading-none">Intelligent Ingest</span>
                     </div>
                     
-                    <motion.h2 
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                        className="text-7xl font-black text-white tracking-tighter leading-tight mb-10"
-                    >
-                        Deploy <span className="gold-text-gradient italic">Global Ground Truth.</span>
-                    </motion.h2>
+                    <h2 className="text-4xl font-black text-white tracking-tighter leading-tight mb-8">
+                        AI <span className="gold-text-gradient italic">Neural Data Sync.</span>
+                    </h2>
                     
-                    <motion.p 
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 0.6 }}
-                        animate={{ y: [0, -4, 0] }}
-                        viewport={{ once: true }}
-                        transition={{ 
-                            opacity: { delay: 0.4 },
-                            y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
-                        }}
-                        className="text-amber-100 text-lg font-medium max-w-2xl leading-relaxed mb-16 italic"
+                    <textarea 
+                        value={rawText}
+                        onChange={(e) => setRawText(e.target.value)}
+                        placeholder={exampleData}
+                        className="w-full h-64 bg-black/40 border-2 border-amber-500/10 rounded-[2.5rem] p-8 text-xs font-black text-amber-100 focus:outline-none focus:border-amber-500/40 transition-all font-mono tracking-tight placeholder:text-amber-500/10 mb-8"
+                    />
+
+                    <button 
+                        onClick={handleAIInjest}
+                        disabled={loading || !rawText}
+                        className="w-full py-6 bg-gradient-to-br from-amber-400 to-yellow-600 text-black rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-20"
                     >
-                        Paste semi-structured departmental logs, sentences, or CSV blocks. Our AI analyzes the entropy, identifies the citizens, and cross-links their conflicting "Realities" across all ministries automatically.
-                    </motion.p>
-
-                    <form onSubmit={handleAIInjest} className="space-y-12">
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.6 }}
-                            className="relative group/input"
-                        >
-                            <div className="absolute inset-0 bg-amber-500/40 rounded-[3rem] blur-3xl opacity-0 group-focus-within/input:opacity-10 transition-opacity" />
-                            <textarea 
-                                value={rawText}
-                                onChange={(e) => setRawText(e.target.value)}
-                                placeholder={exampleData}
-                                className="w-full h-80 bg-slate-900/40 backdrop-blur-3xl border-2 border-amber-500/10 rounded-[3.5rem] p-12 text-sm font-black text-amber-100 focus:outline-none focus:border-amber-500/40 transition-all shadow-inner relative z-10 font-mono tracking-tight placeholder:text-amber-500/10"
-                                required
-                            />
-                            <div className="absolute top-8 right-12 z-20 text-[10px] font-black uppercase tracking-[0.3em] text-amber-500/40 bg-black/50 px-4 py-1.5 rounded-full border border-amber-500/10 opacity-60">AI Intelligence Terminal</div>
-                        </motion.div>
-
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-12 pt-6">
-                            <div className="flex items-center gap-5 text-amber-100/40">
-                                <div className="p-3 bg-amber-500/10 rounded-xl group-hover:scale-110 transition-transform">
-                                    <Search className="h-6 w-6 text-amber-500" />
-                                </div>
-                                <p className="text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed max-w-sm italic">
-                                    Deduplicates by name and resolves conflicting income/category realities across departments in a single sync.
-                                </p>
-                            </div>
-                            <button 
-                                type="submit" 
-                                disabled={loading || !rawText}
-                                className="w-full md:w-auto px-20 py-7 bg-gradient-to-br from-amber-400 to-yellow-600 text-black rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-sm hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-amber-500/20 flex items-center justify-center gap-4 disabled:bg-slate-800 disabled:text-slate-600"
-                            >
-                                {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Commence Intelligent Sync <Globe className="h-5 w-5 stroke-[3]" /></>}
-                            </button>
-                        </div>
-                    </form>
-
-                    <AnimatePresence>
-                        {message && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="mt-16 bg-amber-500/10 border border-amber-500/20 p-10 rounded-[3rem] text-amber-400 flex items-center gap-8 shadow-4xl shadow-amber-500/5 relative overflow-hidden"
-                            >
-                                <div className="absolute top-0 right-0 p-10 opacity-5">
-                                    <ShieldCheck className="h-32 w-32" />
-                                </div>
-                                <div className="bg-amber-500/20 p-5 rounded-2xl shadow-inner relative z-10"><CheckCircle2 className="h-10 w-10" /></div>
-                                <div className="space-y-1 relative z-10">
-                                    <p className="text-sm font-black uppercase tracking-[0.5em] italic">Ground Truth Synchronized</p>
-                                    <p className="text-xs font-bold text-amber-100/60 tracking-wider mt-2">{message}</p>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Sync Neural Reality <Globe className="h-4 w-4 stroke-[3]" /></>}
+                    </button>
                 </div>
             </motion.div>
-        </section>
+
+            {/* 2. CSV High-Throughput Terminal */}
+            <motion.div 
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="glass-card-elite rounded-[4rem] p-12 lg:p-16 border-amber-500/10 relative overflow-hidden group shadow-3xl"
+            >
+                <CSVUploadModule />
+            </motion.div>
+        </div>
+
+        <AnimatePresence>
+            {message && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="mb-16 bg-amber-500/10 border border-amber-500/20 p-10 rounded-[3rem] text-amber-400 flex items-center gap-8 shadow-4xl shadow-amber-500/5 relative overflow-hidden"
+                >
+                    <div className="bg-amber-500/20 p-5 rounded-2xl shadow-inner relative z-10"><CheckCircle2 className="h-10 w-10" /></div>
+                    <div className="space-y-1 relative z-10">
+                        <p className="text-sm font-black uppercase tracking-[0.5em] italic">Ground Truth Synchronized</p>
+                        <p className="text-xs font-bold text-amber-100/60 tracking-wider mt-2">{message}</p>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
 
         {/* Global Policy Registry Elite */}
         <section className="space-y-12">
