@@ -44,7 +44,7 @@ export default function AuditTrailViewer({ citizenId }: { citizenId?: string }) 
       <div className="flex items-center justify-between px-6 mb-2">
         <div className="flex items-center gap-3 text-amber-500">
             <ShieldCheck className="h-5 w-5" />
-            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white italic">Tamper-Proof Audit Ledger</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white italic">Identity & Profile Verification</h3>
         </div>
         <span className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500 italic opacity-60">SHA256 Multi-Factor Integrity</span>
       </div>

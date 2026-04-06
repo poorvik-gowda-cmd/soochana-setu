@@ -3,6 +3,26 @@
 import { useState, useEffect } from "react";
 import { Wallet, LogOut, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ethers, keccak256, toUtf8Bytes } from "ethers";
+
+const AUDIT_CONTRACT_ADDRESS = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
+const AUDIT_ABI = ["function logAudit(bytes32 hash) public"];
+
+async function sendAuditToBlockchain() {
+  try {
+    if (!window.ethereum) return;
+    const auditData = `Audit-${Date.now()}`;
+    const hash = keccak256(toUtf8Bytes(auditData));
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(AUDIT_CONTRACT_ADDRESS, AUDIT_ABI, signer);
+    const tx = await contract.logAudit(hash);
+    console.log("Audit stored on blockchain:", hash);
+    console.log("Transaction hash:", tx.hash);
+  } catch (err) {
+    console.error("Blockchain audit failed:", err);
+  }
+}
 
 declare global {
   interface Window {
@@ -55,6 +75,7 @@ export function WalletConnect() {
         const account = accounts[0];
         setAccount(account);
         localStorage.setItem("connected_wallet", account);
+        sendAuditToBlockchain();
       } catch (err: any) {
         console.error("MetaMask connection failed", err);
         if (err.code === 4001) {

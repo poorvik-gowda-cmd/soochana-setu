@@ -88,8 +88,8 @@ export default function AdminIntelligenceHub() {
         description: "Visualize geographical leakage hotspots and test new policy impact via national AI simulation."
     },
     { 
-        title: "Audit Ledger", 
-        subtitle: "Tamper-Proof Integrity", 
+        title: "Profile Verification", 
+        subtitle: "Identity & Profile Verification", 
         icon: Lock, 
         href: "/audit-ledger", 
         color: "from-yellow-700 to-amber-900",

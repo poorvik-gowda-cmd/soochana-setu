@@ -42,7 +42,7 @@ export default function AuditLedgerPage() {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-6">
-            Audit <span className="gold-text-gradient">Ledger</span>
+            Profile <span className="gold-text-gradient">Verification</span>
           </h1>
           <p className="text-amber-100/60 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed italic mb-8">
             "This module is designed to ensure tamper-proof audit logging using blockchain technology and cryptographic hashing."
