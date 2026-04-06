@@ -81,7 +81,7 @@ export function WalletConnect() {
   };
 
   return (
-    <div className="flex items-center gap-4 shrink-0 min-w-[140px] justify-end">
+    <div className="flex items-center gap-4 shrink-0 min-w-[140px] justify-center">
       {!isMounted ? (
         <div className="h-10 w-32 border border-white/5 rounded-xl animate-pulse" />
       ) : (

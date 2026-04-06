@@ -143,3 +143,25 @@ body {
   pointer-events: none;
   will-change: transform, opacity;
 }
+
+/* Node pulse glow for India Map */
+@keyframes nodePulseGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Gradient shift for tactical recommendation card */
+@keyframes gradientShift {
+  0% { opacity: 0.5; transform: translateX(-10%); }
+  100% { opacity: 1; transform: translateX(10%); }
+}
+
+/* Slow spin for crosshair decorative element */
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 30s linear infinite;
+}

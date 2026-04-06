@@ -24,8 +24,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AdminStats } from "@/components/AdminStats";
 import { RegionalRiskPreview } from "@/components/RegionalRiskPreview";
-import { AuditTrailViewer } from "@/components/AuditTrailViewer";
-import { WalletConnect } from "@/components/WalletConnect";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminIntelligenceHub() {
@@ -93,7 +91,7 @@ export default function AdminIntelligenceHub() {
         title: "Audit Ledger", 
         subtitle: "Tamper-Proof Integrity", 
         icon: Lock, 
-        href: "#audit-section", 
+        href: "/audit-ledger", 
         color: "from-yellow-700 to-amber-900",
         description: "Verify the integrity of system decisions using SHA256 immutable sequences in a vault-style ledger."
     }
@@ -146,8 +144,6 @@ export default function AdminIntelligenceHub() {
                 </div>
                 <Activity className="h-4 w-4 text-amber-500 animate-pulse" />
             </div>
-
-            <WalletConnect />
 
             <Link 
                 href="/citizen-login" 
@@ -315,16 +311,6 @@ export default function AdminIntelligenceHub() {
                     viewport={{ once: true, margin: "-100px" }}
                 >
                     <RegionalRiskPreview />
-                </motion.div>
-
-                <motion.div 
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    id="audit-section" 
-                    className="glass-card-elite rounded-[4rem] p-6 border-amber-500/10"
-                >
-                    <AuditTrailViewer />
                 </motion.div>
              </div>
 

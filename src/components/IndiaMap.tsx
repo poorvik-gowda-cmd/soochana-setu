@@ -1,50 +1,81 @@
 "use client";
 
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { DistrictEntry } from "@/lib/types";
+import IndiaMapData from "@svg-maps/india";
 import { 
-  MapPin, 
-  AlertTriangle, 
-  Info, 
   Maximize2, 
-  Minimize2, 
-  Zap, 
   Activity,
   Globe,
   Database,
-  Crosshair
+  Crosshair,
+  Zap
 } from "lucide-react";
 
-// Expanded City Coordinates for a "Busy" Intelligence Map
-const CITY_COORDS: Record<string, { x: number, y: number }> = {
-  "Delhi": { x: 350, y: 220 },
-  "Mumbai": { x: 180, y: 550 },
-  "Bangalore": { x: 300, y: 750 },
-  "Lucknow": { x: 450, y: 260 },
-  "Patna": { x: 580, y: 280 },
-  "Hyderabad": { x: 350, y: 580 },
-  "Chennai": { x: 400, y: 780 },
-  "Kolkata": { x: 750, y: 380 },
-  "Ahmedabad": { x: 150, y: 400 },
-  "Guwahati": { x: 880, y: 320 },
-  "Bhopal": { x: 380, y: 450 },
-  "Kochi": { x: 280, y: 880 },
-  "Jaipur": { x: 280, y: 300 }
+// Safe extraction of locations for Next.js esModule interoperability
+const locations = IndiaMapData.locations || (IndiaMapData as any).default?.locations || [];
+
+// ─── Risk-classified nodes positioned accurately on 612x696 India SVG ───
+interface NodeData {
+  name: string;
+  x: number;
+  y: number;
+  risk: "High" | "Medium" | "Low";
+  population: string;
+  conflictRate: number;
+}
+
+const RISK_NODES: NodeData[] = [
+  // HIGH RISK — RED
+  { name: "Delhi",           x: 186, y: 210, risk: "High",   population: "32M",  conflictRate: 42 },
+  { name: "Uttar Pradesh",   x: 265, y: 245, risk: "High",   population: "231M", conflictRate: 38 },
+  { name: "Bihar",           x: 369, y: 275, risk: "High",   population: "128M", conflictRate: 35 },
+  // MEDIUM RISK — AMBER
+  { name: "Maharashtra",     x: 180, y: 435, risk: "Medium", population: "126M", conflictRate: 22 },
+  { name: "West Bengal",     x: 412, y: 310, risk: "Medium", population: "99M",  conflictRate: 19 },
+  { name: "Rajasthan",       x: 119, y: 257, risk: "Medium", population: "81M",  conflictRate: 17 },
+  // LOW RISK — GREEN
+  { name: "Karnataka",       x: 171, y: 519, risk: "Low",    population: "67M",  conflictRate: 8  },
+  { name: "Tamil Nadu",      x: 211, y: 609, risk: "Low",    population: "77M",  conflictRate: 6  },
+  { name: "Kerala",          x: 166, y: 615, risk: "Low",    population: "35M",  conflictRate: 4  },
+];
+
+// Connection lines between nodes
+const NODE_CONNECTIONS = [
+  { from: "Delhi",         to: "Uttar Pradesh" },
+  { from: "Delhi",         to: "Rajasthan" },
+  { from: "Uttar Pradesh", to: "Bihar" },
+  { from: "Bihar",         to: "West Bengal" },
+  { from: "Maharashtra",   to: "Karnataka" },
+  { from: "Karnataka",     to: "Tamil Nadu" },
+  { from: "Tamil Nadu",    to: "Kerala" },
+  { from: "Delhi",         to: "Maharashtra" },
+  { from: "West Bengal",   to: "Uttar Pradesh" },
+  { from: "Rajasthan",     to: "Maharashtra" },
+];
+
+// Background particles for the new viewBox (0 to 612, 0 to 696)
+const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
+  id: i,
+  x: Math.random() * 612,
+  y: Math.random() * 696,
+  size: Math.random() * 2 + 1,
+  delay: Math.random() * 6,
+  duration: 4 + Math.random() * 4,
+}));
+
+const getRiskColor = (risk: string) => {
+  if (risk === "High") return "#ef4444";
+  if (risk === "Medium") return "#f59e0b";
+  return "#22c55e";
 };
 
-// Connections for "Data Flow" simulation (Source -> Target)
-const CONNECTIONS = [
-  { from: "Delhi", to: "Mumbai" },
-  { from: "Delhi", to: "Kolkata" },
-  { from: "Mumbai", to: "Bangalore" },
-  { from: "Hyderabad", to: "Chennai" },
-  { from: "Bangalore", to: "Hyderabad" },
-  { from: "Lucknow", to: "Delhi" },
-  { from: "Ahmedabad", to: "Mumbai" },
-  { from: "Kolkata", to: "Guwahati" }
-];
+const getRiskGlow = (risk: string) => {
+  if (risk === "High") return "rgba(239,68,68,0.6)";
+  if (risk === "Medium") return "rgba(245,158,11,0.5)";
+  return "rgba(34,197,94,0.4)";
+};
 
 export function IndiaMap({ districts, selectedDistrict, onSelect }: { 
     districts: DistrictEntry[], 
@@ -53,290 +84,415 @@ export function IndiaMap({ districts, selectedDistrict, onSelect }: {
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [isLive, setIsLive] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  const getRiskColor = (risk: string) => {
-    if (risk === "High") return "#fb7185"; // rose-400 (neon)
-    if (risk === "Medium") return "#fbbf24"; // amber-400
-    return "#34d399"; // emerald-400
-  };
+  const getNodeByName = (name: string) => RISK_NODES.find(n => n.name === name);
 
   return (
-    <div className="relative w-full aspect-[4/5] bg-slate-950 rounded-[3rem] border border-slate-800 overflow-hidden shadow-2xl p-0 group">
-      {/* High-Tech Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.5)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)] pointer-events-none opacity-20" />
-      
-      {/* Intelligence Status HUD */}
-      <div className="absolute top-10 left-10 z-30 flex flex-col gap-6">
-        <div className="flex items-center gap-4 bg-slate-900/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-700 shadow-xl">
-             <div className="relative">
-                 <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                 <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-500 animate-ping opacity-75" />
-             </div>
-             <div>
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-white leading-none">Live Reality Sync</h4>
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1 italic">Inter-Ministerial Link Established</p>
-             </div>
-        </div>
+    <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl p-0 group"
+         style={{ background: "linear-gradient(145deg, #0a0a1a 0%, #050510 50%, #0d0d20 100%)" }}>
 
-        <div className="flex flex-col gap-3">
-            {[
-                { label: "High Conflict", color: "bg-rose-500", glow: "shadow-[0_0_15px_rgba(244,63,94,0.6)]" },
-                { label: "Systemic Risk", color: "bg-amber-500", glow: "shadow-[0_0_15px_rgba(245,158,11,0.4)]" },
-                { label: "Normal Node", color: "bg-emerald-500", glow: "shadow-[0_0_15px_rgba(16,185,129,0.4)]" }
-            ].map((item) => (
-                <div key={item.label} className="flex items-center gap-3 bg-slate-900/40 px-3 py-1.5 rounded-full border border-slate-800/50">
-                    <div className={`w-2 h-2 rounded-full ${item.color} ${item.glow}`} />
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
-                </div>
-            ))}
-        </div>
-      </div>
+      {/* Subtle grid overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+           style={{
+             backgroundImage: `
+               linear-gradient(rgba(198,160,82,0.3) 1px, transparent 1px),
+               linear-gradient(90deg, rgba(198,160,82,0.3) 1px, transparent 1px)`,
+             backgroundSize: "50px 50px"
+           }}
+      />
 
-      {/* Map Control HUD */}
-      <div className="absolute top-10 right-10 z-30 flex flex-col gap-4">
-          <button className="p-4 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 transition-all shadow-xl">
-              <Maximize2 className="h-5 w-5" />
-          </button>
-          <button 
-             onClick={() => setIsLive(!isLive)}
-             className={`p-4 rounded-2xl border transition-all shadow-xl flex items-center justify-center ${isLive ? 'bg-indigo-600/20 border-indigo-500 text-indigo-400' : 'bg-slate-900/80 border-slate-700 text-slate-400'}`}
-          >
-              <Activity className={`h-5 w-5 ${isLive ? 'animate-pulse' : ''}`} />
-          </button>
-      </div>
+      {/* Radial vignette overlay */}
+      <div className="absolute inset-0 pointer-events-none"
+           style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%)" }} />
 
-      {/* Movable Intelligence Canvas */}
-      <motion.div 
-        ref={containerRef}
-        drag
-        dragConstraints={{ left: -200, right: 200, top: -200, bottom: 200 }}
-        className="w-full h-full p-20 cursor-grab active:cursor-grabbing relative"
-      >
-        <svg 
-            viewBox="0 0 1000 1200" 
-            className="w-full h-full drop-shadow-[0_0_80px_rgba(79,70,229,0.1)] transition-transform duration-700 ease-out py-10"
-        >
-            {/* The "Crazy" Detailed India Path */}
-            <defs>
-                <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#1e293b" />
-                    <stop offset="100%" stopColor="#0f172a" />
-                </linearGradient>
-                <filter id="neonGlow">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-            </defs>
-
-            {/* Mainland Vector */}
-            <motion.path 
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 2, ease: "easeInOut" }}
-                d="M336.5,56l-8.5,13.5l1.5,12.5l-9.5,8.5l-2.5,23l6,11.5l10.5,1l15.5-8.5l13.5-1.5l12.5,5.5l11.5,12.5l1,19l11.5,1.5l23-2.5l11.5,7l6,15.5l17.5,7l26-4.5l11.5,11.5l19,10.5l1,19l7,22.5l17.5,1l24,11.5l15.5,17.5l5.5,26l1,23l12.5,26l12.5,11.5l30,1l15.5,11.5l26,17.5l22.5,11.5l26,26l22.5,11.5l42,1l10.5,15.5l4.5,26l22.5,30l19,15.5l1.5,26l-13.5,22.5l-33,12.5l-19,30l-12.5,42l-4.5,26l-19,19l-42,1.5l-57,11.5l-42,30l-12.5,42l-1.5,57l-13.5,42l-33,57l-11.5,42l-1,57l-15.5,33l-42,11.5l-26,42l1,57l-19,37.5l-57,13.5l-42,33l-19,57l-1,42l-5.5,33l-26,19l-42,1l-33-13.5l-19-33l-19-12.5l-57-5.5l-42-19l-22.5-33l-1-42l-15.5-33l-57-11.5l-42-26l-19-42l-1-57l-11.5-42l-33-19l-57-1l-33-12.5l-19-33l-10.5-57l-26-33l-19-19l-11.5-42l1-42l-19-33l-33-10.5l-26-19l-12.5-33l1-42l11.5-26l19-19l45-1l26-11.5l15.5-22.5l5.5-33l12.5-19l33-5.5l22.5-17.5l15.5-22.5l1-42l11.5-33l26-15.5l19-33l22.5-1l42-12.5l26-1l33,10.5l42,1.5l22.5-11.5l33-12.5L336.5,56z" 
-                fill="url(#mapGradient)" 
-                stroke="#334155"
-                strokeWidth="2"
-                className="shadow-2xl"
-            />
-
-            {/* Simulation: Inter-City Data Flow Particles */}
-            {isLive && CONNECTIONS.map((conn, i) => {
-                const start = CITY_COORDS[conn.from];
-                const end = CITY_COORDS[conn.to];
-                if (!start || !end) return null;
-
-                return (
-                    <g key={`pulse-${i}`}>
-                        <path 
-                            d={`M${start.x},${start.y} Q${(start.x+end.x)/2 - 50},${(start.y+end.y)/2 - 50} ${end.x},${end.y}`} 
-                            fill="none" 
-                            stroke="rgba(99, 102, 241, 0.05)" 
-                            strokeWidth="1"
-                        />
-                        <motion.circle
-                            r="2"
-                            fill="#818cf8"
-                            initial={{ offsetDistance: "0%" }}
-                            animate={{ offsetDistance: "100%" }}
-                            transition={{ duration: 3 + i, repeat: Infinity, ease: "linear" }}
-                            style={{ offsetPath: `path("M${start.x},${start.y} Q${(start.x+end.x)/2 - 50},${(start.y+end.y)/2 - 50} ${end.x},${end.y}")` }}
-                        >
-                            <animate attributeName="opacity" values="0;1;1;0" dur={`${3+i}s`} repeatCount="indefinite" />
-                        </motion.circle>
-                    </g>
-                );
-            })}
-
-            {/* Strategic Intelligence Nodes */}
-            {Object.entries(CITY_COORDS).map(([name, coords]) => {
-              const districtData = districts.find(d => d.district === name);
-              const risk = districtData?.risk || "Low";
-              const isSelected = selectedDistrict === name;
-              const isHovered = hovered === name;
-
-              return (
-                <motion.g 
-                    key={name}
-                    onMouseEnter={() => setHovered(name)}
-                    onMouseLeave={() => setHovered(null)}
-                    onClick={() => onSelect(name)}
-                    className="cursor-pointer group/node"
-                >
-                    {/* Concentric Pulse for High Risk */}
-                    {risk === "High" && isLive && (
-                        <>
-                            <motion.circle
-                                cx={coords.x}
-                                cy={coords.y}
-                                r="45"
-                                fill="transparent"
-                                stroke="#fb7185"
-                                strokeWidth="1"
-                                initial={{ opacity: 0.8, scale: 0.1 }}
-                                animate={{ opacity: 0, scale: 1.5 }}
-                                transition={{ repeat: Infinity, duration: 2.5 }}
-                            />
-                            <motion.circle
-                                cx={coords.x}
-                                cy={coords.y}
-                                r="35"
-                                fill="transparent"
-                                stroke="#fb7185"
-                                strokeWidth="0.5"
-                                initial={{ opacity: 0.5, scale: 0.1 }}
-                                animate={{ opacity: 0, scale: 1.2 }}
-                                transition={{ repeat: Infinity, duration: 2.5, delay: 0.5 }}
-                            />
-                        </>
-                    )}
-
-                    {/* Node Core Indicator */}
-                    <motion.circle
-                        cx={coords.x}
-                        cy={coords.y}
-                        r={isSelected || isHovered ? 14 : 7}
-                        fill={getRiskColor(risk)}
-                        filter="url(#neonGlow)"
-                        animate={{
-                            r: isSelected || isHovered ? 16 : 8,
-                            opacity: isSelected || isHovered ? 1 : 0.8
-                        }}
-                        className="transition-all duration-300"
-                    />
-
-                    {/* Node Perimeter */}
-                    <circle
-                        cx={coords.x}
-                        cy={coords.y}
-                        r={isSelected || isHovered ? 24 : 14}
-                        fill="transparent"
-                        stroke={getRiskColor(risk)}
-                        strokeWidth="1"
-                        strokeDasharray="4 4"
-                        className="opacity-40"
-                    />
-
-                    {/* Intelligence Label */}
-                    {(isSelected || isHovered) && (
-                        <motion.text
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            x={coords.x}
-                            y={coords.y - 45}
-                            textAnchor="middle"
-                            className="text-[20px] font-black fill-white tracking-[0.2em] uppercase transition-all"
-                            style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,1))' }}
-                        >
-                            {name}
-                        </motion.text>
-                    )}
-                </motion.g>
-              );
-            })}
-        </svg>
-      </motion.div>
-
-      {/* Floating Tactical Intelligence Feed */}
-      <div className="absolute bottom-10 left-10 z-30 max-w-[280px]">
-          <div className="bg-slate-900/90 backdrop-blur-xl p-6 rounded-[2rem] border border-slate-700 shadow-3xl">
-              <div className="flex items-center gap-3 mb-4">
-                  <Database className="h-4 w-4 text-indigo-400" />
-                  <h5 className="text-[10px] font-black uppercase tracking-widest text-white">Neural Anomaly Log</h5>
-              </div>
-              <div className="space-y-3 overflow-hidden h-24 font-mono text-[8.5px]">
-                  <p className="text-slate-400 border-l-2 border-indigo-500 pl-3">
-                      [INFO] Reconciliation active for 56,120 nodes.
-                  </p>
-                  <motion.p 
-                     animate={{ opacity: [1, 0.5, 1] }}
-                     transition={{ duration: 2, repeat: Infinity }}
-                     className="text-rose-400 border-l-2 border-rose-500 pl-3"
-                  >
-                      [WARN] Conflict found: Income mismatch in Mumbai Cluster.
-                  </motion.p>
-                  <p className="text-slate-500 opacity-60 border-l-2 border-slate-700 pl-3">
-                      [LOG] Audit Trail synchronizing with Ledger...
-                  </p>
-              </div>
+      {/* ─── Intelligence Status HUD ─── */}
+      <div className="absolute top-8 left-8 z-30 flex flex-col gap-4">
+        <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl border shadow-xl"
+             style={{ background: "rgba(10,10,20,0.85)", backdropFilter: "blur(12px)", borderColor: "rgba(198,160,82,0.15)" }}>
+          <div className="relative">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" style={{ animation: "nodePulseGlow 2s ease-in-out infinite" }} />
+            <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping opacity-75" />
           </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-widest leading-none" style={{ color: "#EAEAEA" }}>Live Intelligence Feed</h4>
+            <p className="text-[8px] font-bold uppercase tracking-[0.2em] mt-1 italic" style={{ color: "rgba(198,160,82,0.5)" }}>Multi-Node Sync Active</p>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-col gap-2">
+          {[
+            { label: "High Risk", color: "#ef4444", glow: "0 0 12px rgba(239,68,68,0.5)" },
+            { label: "Medium Risk", color: "#f59e0b", glow: "0 0 12px rgba(245,158,11,0.4)" },
+            { label: "Low Risk", color: "#22c55e", glow: "0 0 12px rgba(34,197,94,0.4)" },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-2.5 px-3 py-1.5 rounded-full"
+                 style={{ background: "rgba(10,10,20,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color, boxShadow: item.glow }} />
+              <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "rgba(234,234,234,0.5)" }}>{item.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Crosshair Overlay */}
-      <div className="absolute inset-0 pointer-events-none border border-indigo-500/10 [mask-image:linear-gradient(to_bottom,black,transparent,black)]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-10">
-          <Crosshair className="h-48 w-48 text-indigo-500" strokeWidth={0.5} />
+      {/* ─── Map Controls ─── */}
+      <div className="absolute top-8 right-8 z-30 flex flex-col gap-3">
+        <button className="p-3.5 rounded-2xl border transition-all shadow-xl"
+                style={{ background: "rgba(10,10,20,0.85)", backdropFilter: "blur(12px)", borderColor: "rgba(198,160,82,0.15)", color: "#EAEAEA" }}>
+          <Maximize2 className="h-4 w-4" />
+        </button>
+        <button 
+          onClick={() => setIsLive(!isLive)}
+          className="p-3.5 rounded-2xl border transition-all shadow-xl flex items-center justify-center"
+          style={{
+            background: isLive ? "rgba(99,102,241,0.15)" : "rgba(10,10,20,0.85)",
+            backdropFilter: "blur(12px)",
+            borderColor: isLive ? "rgba(99,102,241,0.4)" : "rgba(198,160,82,0.15)",
+            color: isLive ? "#818cf8" : "#EAEAEA"
+          }}
+        >
+          <Activity className={`h-4 w-4 ${isLive ? 'animate-pulse' : ''}`} />
+        </button>
       </div>
 
-      {/* Interactive Tooltip Overlay */}
+      {/* ─── SVG Map Canvas ─── */}
+      <div className="w-full h-full px-6 py-6 pb-20 relative flex items-center justify-center">
+        <svg viewBox="0 0 612 696" className="w-[85%] h-[85%] drop-shadow-2xl">
+          <defs>
+            {/* Map fill gradient */}
+            <linearGradient id="indiaFill" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#111827" />
+              <stop offset="50%" stopColor="#0c1220" />
+              <stop offset="100%" stopColor="#0f172a" />
+            </linearGradient>
+            {/* Glow filters */}
+            <filter id="nodeGlow">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="softGlow">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="lineGlow">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="mapShadow">
+                <feDropShadow dx="0" dy="15" stdDeviation="20" floodColor="#000000" floodOpacity="0.6"/>
+            </filter>
+          </defs>
+
+          {/* ── Background Particles ── */}
+          {isLive && PARTICLES.map((p) => (
+            <motion.circle
+              key={`particle-${p.id}`}
+              cx={p.x}
+              cy={p.y}
+              r={p.size}
+              fill="rgba(198,160,82,0.15)"
+              initial={{ opacity: 0.05, scale: 1 }}
+              animate={{
+                opacity: [0.05, 0.2, 0.05],
+                scale: [1, 1.3, 1],
+                cy: [p.y, p.y - 15, p.y]
+              }}
+              transition={{
+                duration: p.duration,
+                delay: p.delay,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+
+          {/* ── India Outline (Detailed from @svg-maps/india) ── */}
+          <g filter="url(#mapShadow)">
+            {locations.map((loc: any) => (
+                <motion.path
+                  key={loc.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  d={loc.path}
+                  fill="url(#indiaFill)"
+                  stroke="rgba(198,160,82,0.2)"
+                  strokeWidth="1.2"
+                  className="transition-colors duration-500 hover:fill-[#1a233a]"
+                  data-name={loc.name}
+                />
+            ))}
+          </g>
+
+          {/* ── Faint Connecting Lines ── */}
+          {NODE_CONNECTIONS.map((conn, i) => {
+            const from = getNodeByName(conn.from);
+            const to = getNodeByName(conn.to);
+            if (!from || !to) return null;
+
+            const midX = (from.x + to.x) / 2 + (i % 2 === 0 ? -15 : 15);
+            const midY = (from.y + to.y) / 2 + (i % 2 === 0 ? -10 : 10);
+
+            return (
+              <g key={`conn-${i}`}>
+                {/* Faint path */}
+                <motion.path
+                  d={`M${from.x},${from.y} Q${midX},${midY} ${to.x},${to.y}`}
+                  fill="none"
+                  stroke="rgba(198,160,82,0.12)"
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 2, delay: i * 0.15, ease: "easeOut" }}
+                />
+                {/* Traveling pulse */}
+                {isLive && (
+                  <motion.circle
+                    r="1.5"
+                    fill="rgba(198,160,82,0.6)"
+                    filter="url(#lineGlow)"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.9, 0.9, 0] }}
+                    transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "linear", delay: i * 0.3 }}
+                    style={{ offsetPath: `path("M${from.x},${from.y} Q${midX},${midY} ${to.x},${to.y}")` }}
+                  >
+                    <animateMotion
+                      dur={`${3 + i * 0.5}s`}
+                      repeatCount="indefinite"
+                      path={`M${from.x},${from.y} Q${midX},${midY} ${to.x},${to.y}`}
+                    />
+                  </motion.circle>
+                )}
+              </g>
+            );
+          })}
+
+          {/* ── Risk Nodes ── */}
+          {RISK_NODES.map((node, idx) => {
+            const isSelected = selectedDistrict === node.name;
+            const isHovered = hovered === node.name;
+            const color = getRiskColor(node.risk);
+            const glow = getRiskGlow(node.risk);
+
+            return (
+              <g
+                key={node.name}
+                onMouseEnter={() => setHovered(node.name)}
+                onMouseLeave={() => setHovered(null)}
+                onClick={() => onSelect(node.name)}
+                className="cursor-pointer"
+              >
+                {/* Outer pulse ring */}
+                <motion.circle
+                  cx={node.x}
+                  cy={node.y}
+                  r="15"
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="0.8"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{
+                    opacity: [0.5, 0, 0.5],
+                    scale: [0.8, 1.4, 0.8],
+                  }}
+                  transition={{
+                    duration: 3 + idx * 0.2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: idx * 0.3,
+                  }}
+                  style={{ transformOrigin: `${node.x}px ${node.y}px` }}
+                />
+
+                {/* Second pulse ring (only high risk) */}
+                {node.risk === "High" && (
+                  <motion.circle
+                    cx={node.x}
+                    cy={node.y}
+                    r="20"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="0.5"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{
+                      opacity: [0.4, 0, 0.4],
+                      scale: [0.7, 1.6, 0.7],
+                    }}
+                    transition={{
+                      duration: 3.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: idx * 0.2 + 0.5,
+                    }}
+                    style={{ transformOrigin: `${node.x}px ${node.y}px` }}
+                  />
+                )}
+
+                {/* Glow aura */}
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={isSelected || isHovered ? 14 : 9}
+                  fill={color}
+                  opacity={0.15}
+                  style={{ filter: "blur(6px)", transition: "r 0.3s ease" }}
+                />
+
+                {/* Core dot with pulse animation */}
+                <motion.circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={isSelected || isHovered ? 6 : 4}
+                  fill={color}
+                  filter="url(#nodeGlow)"
+                  animate={{
+                    scale: [1, 1.25, 1],
+                    opacity: [0.85, 1, 0.85],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: idx * 0.15,
+                  }}
+                  style={{
+                    transformOrigin: `${node.x}px ${node.y}px`,
+                    filter: `drop-shadow(0 0 10px ${glow})`,
+                  }}
+                />
+
+                {/* Dashed perimeter */}
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={isSelected || isHovered ? 16 : 10}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="0.8"
+                  strokeDasharray="2 2"
+                  opacity={0.4}
+                  style={{ transition: "r 0.3s ease" }}
+                />
+
+                {/* Always-visible label */}
+                <text
+                  x={node.x}
+                  y={node.y - (isSelected || isHovered ? 20 : 14)}
+                  textAnchor="middle"
+                  fill="#EAEAEA"
+                  fontSize={isSelected || isHovered ? "10" : "8"}
+                  fontWeight="900"
+                  letterSpacing="0.1em"
+                  opacity={isSelected || isHovered ? 1 : 0.7}
+                  style={{
+                    textTransform: "uppercase",
+                    filter: "drop-shadow(0 0 4px rgba(0,0,0,1))",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  {node.name}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* ─── Neural Anomaly Log (Bottom Left) ─── */}
+      <div className="absolute bottom-8 left-8 z-30 max-w-[260px]">
+        <div className="p-5 rounded-2xl border shadow-2xl"
+             style={{ background: "rgba(10,10,20,0.9)", backdropFilter: "blur(16px)", borderColor: "rgba(198,160,82,0.12)" }}>
+          <div className="flex items-center gap-2.5 mb-3">
+            <Database className="h-3.5 w-3.5" style={{ color: "#c6a052" }} />
+            <h5 className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#EAEAEA" }}>Anomaly Feed</h5>
+          </div>
+          <div className="space-y-2 overflow-hidden h-20 font-mono text-[8px]">
+            <p style={{ color: "rgba(198,160,82,0.5)", borderLeft: "2px solid rgba(198,160,82,0.3)", paddingLeft: "8px" }}>
+              [INFO] Scanning 467 districts for variance...
+            </p>
+            <motion.p 
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ color: "#ef4444", borderLeft: "2px solid #ef4444", paddingLeft: "8px" }}
+            >
+              [ALERT] Income mismatch — Delhi cluster flagged.
+            </motion.p>
+            <p style={{ color: "rgba(234,234,234,0.25)", borderLeft: "2px solid rgba(255,255,255,0.06)", paddingLeft: "8px" }}>
+              [SYNC] Ledger hash: 0x7E2A...9F1C verified.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Crosshair Overlay ─── */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+           style={{ border: "1px solid rgba(99,102,241,0.15)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.04]">
+        <Crosshair className="h-40 w-40" style={{ color: "rgba(198,160,82,0.5)" }} strokeWidth={0.5} />
+      </div>
+
+      {/* ─── Interactive Tooltip ─── */}
       <AnimatePresence>
-        {hovered && (
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="absolute top-1/2 right-10 -translate-y-1/2 z-40 w-72 bg-slate-950/95 backdrop-blur-2xl text-white p-8 rounded-[2.5rem] shadow-4xl border border-slate-700 space-y-6"
-          >
-            <div>
-                <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-xl font-black uppercase tracking-tighter italic">{hovered}</h4>
-                    <Link href={`/admin/research?identifier=${hovered}`}>
-                        <Globe className="h-4 w-4 text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer" />
-                    </Link>
+        {hovered && (() => {
+          const node = getNodeByName(hovered);
+          if (!node) return null;
+          const color = getRiskColor(node.risk);
+          return (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="absolute top-1/2 right-8 -translate-y-1/2 z-40 w-64 p-6 rounded-2xl border space-y-4"
+              style={{
+                background: "rgba(8,8,18,0.95)",
+                backdropFilter: "blur(20px)",
+                borderColor: "rgba(198,160,82,0.15)",
+                boxShadow: `0 25px 50px rgba(0,0,0,0.8), 0 0 30px ${getRiskGlow(node.risk)}`,
+              }}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-base font-black uppercase tracking-tight italic" style={{ color: "#FFFFFF" }}>{node.name}</h4>
+                  <Globe className="h-3.5 w-3.5" style={{ color: "rgba(198,160,82,0.6)" }} />
                 </div>
-                <div className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                    districts.find(d => d.district === hovered)?.risk === 'High' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 
-                    districts.find(d => d.district === hovered)?.risk === 'Medium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                }`}>
-                    {districts.find(d => d.district === hovered)?.risk || "Low"} Integrity Risk
+                <div className="inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
+                     style={{
+                       background: `${color}15`,
+                       color: color,
+                       border: `1px solid ${color}30`,
+                     }}>
+                  {node.risk} Risk Zone
                 </div>
-            </div>
-            
-            <div className="space-y-5">
-                <div>
-                    <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                        <span>Reconciliation Index</span>
-                        <span className="text-indigo-400">{districts.find(d => d.district === hovered)?.conflict_rate || 5}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                        <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${districts.find(d => d.district === hovered)?.conflict_rate || 5}%` }}
-                            className={`h-full shadow-[0_0_10px_currentColor] ${
-                                (districts.find(d => d.district === hovered)?.conflict_rate || 0) > 30 ? 'text-rose-500' : 'text-emerald-500'
-                            } bg-current`}
-                        />
-                    </div>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
+                  <span style={{ color: "rgba(234,234,234,0.4)" }}>Conflict Rate</span>
+                  <span style={{ color }}>{node.conflictRate}%</span>
                 </div>
-                <div className="pt-4 border-t border-slate-800">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        <Zap className="h-3 w-3" /> Node Pulse: Active
-                    </div>
+                <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${node.conflictRate}%` }}
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}` }}
+                  />
                 </div>
-            </div>
-          </motion.div>
-        )}
+                <div className="flex justify-between text-[9px] font-black uppercase tracking-widest pt-1">
+                  <span style={{ color: "rgba(234,234,234,0.4)" }}>Population</span>
+                  <span style={{ color: "#EAEAEA" }}>{node.population}</span>
+                </div>
+              </div>
+
+              <div className="pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest" style={{ color: "rgba(198,160,82,0.4)" }}>
+                  <Zap className="h-3 w-3" /> Node Pulse: Active
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
     </div>
   );
